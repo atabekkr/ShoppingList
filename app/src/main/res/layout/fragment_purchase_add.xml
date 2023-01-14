@@ -23,9 +23,10 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:hint="add"
         app:endIconMode="custom"
-        app:endIconDrawable="@drawable/ic_list_add">
+        app:endIconDrawable="@drawable/ic_list_add" >
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
