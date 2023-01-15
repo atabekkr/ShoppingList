@@ -2,4 +2,7 @@
     <string name="app_name">Shopping List</string>
     <string name="text_lists">Lists</string>
     <string name="text_all_purchases">All purchases</string>
+    <string name="text_delete">Удалить</string>
+    <string name="text_edit">Изменить</string>
+    <string name="text_dissmis">Отмена</string>
 </resources>

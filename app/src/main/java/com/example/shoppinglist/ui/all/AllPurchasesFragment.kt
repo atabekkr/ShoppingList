@@ -1,7 +1,10 @@
 package com.example.shoppinglist.ui.all
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
+import android.widget.PopupMenu
+import androidx.annotation.MenuRes
 import androidx.fragment.app.Fragment
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.PurchaseDao
@@ -10,6 +13,7 @@ import com.example.shoppinglist.databinding.FragmentPurchasesAllBinding
 import com.example.shoppinglist.databinding.ItemPurchaseBinding
 import com.example.shoppinglist.ui.PurchaseAdapter
 import com.example.shoppinglist.ui.add.AddPurchaseFragment
+import com.google.android.material.snackbar.Snackbar
 
 class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
     private lateinit var binding: FragmentPurchasesAllBinding
@@ -28,6 +32,10 @@ class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
             recyclerView.adapter = adapter
 
             adapter.models = dao.getAllLists().toMutableList()
+
+            adapter.setOnMenuClickListener {
+                showMenu(it, R.menu.menu_purchase)
+            }
 
             adapter.setOnItemClickListener { purchase, position ->
                 val bundle = Bundle()
@@ -56,5 +64,24 @@ class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
                 }
             }
         }
+    }
+
+    private fun showMenu(v: View, @MenuRes menuRes: Int) {
+        val popup = PopupMenu(requireContext(), v)
+        popup.menuInflater.inflate(menuRes, popup.menu)
+
+        popup.setOnMenuItemClickListener { menuItem: MenuItem ->
+            when(menuItem.itemId) {
+                R.id.item1 -> {
+                    Snackbar.make(requireView(), "ozgert", Snackbar.LENGTH_SHORT).show()
+                }
+                R.id.item2 -> {
+                    Snackbar.make(requireView(), "oshir", Snackbar.LENGTH_SHORT).show()
+                }
+            }
+            true
+         }
+
+        popup.show()
     }
 }

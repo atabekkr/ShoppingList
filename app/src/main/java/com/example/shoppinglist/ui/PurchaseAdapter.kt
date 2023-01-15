@@ -2,6 +2,7 @@ package com.example.shoppinglist.ui
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
@@ -18,6 +19,10 @@ class PurchaseAdapter: Adapter<PurchaseAdapter.PurchaseViewHolder>() {
 
                 cvPurchase.setOnClickListener {
                     onItemClick.invoke(purchase, adapterPosition)
+                }
+
+                ivMenu.setOnClickListener { v  ->
+                    onMenuClick.invoke(v)
                 }
             }
         }
@@ -45,5 +50,10 @@ class PurchaseAdapter: Adapter<PurchaseAdapter.PurchaseViewHolder>() {
     private var onItemClick: (purchase: Purchase, position: Int) -> Unit = {_, _ ->}
     fun setOnItemClickListener(onItemClick: (purchase: Purchase, position: Int) -> Unit) {
         this.onItemClick = onItemClick
+    }
+
+    private var onMenuClick: (v: View) -> Unit = {}
+    fun setOnMenuClickListener(onMenuClick: (v: View) -> Unit) {
+        this.onMenuClick = onMenuClick
     }
 }
