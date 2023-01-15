@@ -6,7 +6,7 @@ import androidx.room.Query
 
 @Dao
 interface PurchaseDao {
-    @Query("Select * From purchases")
+    @Query("SELECT * FROM purchases")
     fun getAllLists(): List<Purchase>
 
     @Insert(entity = Purchase::class)

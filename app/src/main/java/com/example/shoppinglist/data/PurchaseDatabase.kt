@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Purchase::class], version = 1)
+@Database(entities = [Purchase::class, Roll::class], version = 4, exportSchema = false)
 abstract class PurchaseDatabase: RoomDatabase() {
     companion object {
         private var instance: PurchaseDatabase? = null
@@ -25,4 +25,6 @@ abstract class PurchaseDatabase: RoomDatabase() {
     }
 
     abstract fun getPurchaseDao(): PurchaseDao
+
+    abstract fun getRollDao(): RollDao
 }

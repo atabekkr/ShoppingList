@@ -15,6 +15,10 @@ class PurchaseAdapter: Adapter<PurchaseAdapter.PurchaseViewHolder>() {
         fun bind(purchase: Purchase) {
             binding.apply {
                 tvName.text = purchase.name
+
+                cvPurchase.setOnClickListener {
+                    onItemClick.invoke(purchase, adapterPosition)
+                }
             }
         }
     }
@@ -36,5 +40,10 @@ class PurchaseAdapter: Adapter<PurchaseAdapter.PurchaseViewHolder>() {
 
     override fun onBindViewHolder(holder: PurchaseViewHolder, position: Int) {
         holder.bind(models[position])
+    }
+
+    private var onItemClick: (purchase: Purchase, position: Int) -> Unit = {_, _ ->}
+    fun setOnItemClickListener(onItemClick: (purchase: Purchase, position: Int) -> Unit) {
+        this.onItemClick = onItemClick
     }
 }

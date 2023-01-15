@@ -11,7 +11,7 @@ import com.example.shoppinglist.data.PurchaseDatabase
 import com.example.shoppinglist.databinding.DialogPurchaseAddBinding
 import com.google.android.material.snackbar.Snackbar
 
-class AddPurchaseDialog: DialogFragment(R.layout.dialog_purchase_add) {
+class AddPurchaseDialog(private val lastId: Int): DialogFragment(R.layout.dialog_purchase_add) {
     private lateinit var binding: DialogPurchaseAddBinding
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -26,10 +26,11 @@ class AddPurchaseDialog: DialogFragment(R.layout.dialog_purchase_add) {
 
                 if (name.isNotEmpty()) {
                     val purchase = Purchase(
-                        name = name
+                        name = name,
                     )
+
                     dao.addPurchase(purchase)
-                    onAddSuccess.invoke()
+                    onAddSuccess.invoke(lastId + 1)
                     dismiss()
                 } else {
                     Toast.makeText(requireContext(), "Toltir", Toast.LENGTH_SHORT).show()
@@ -38,8 +39,8 @@ class AddPurchaseDialog: DialogFragment(R.layout.dialog_purchase_add) {
         }
     }
 
-    private var onAddSuccess: () -> Unit = {}
-    fun setOnAddSuccessListener(onAddSuccess: () -> Unit) {
+    private var onAddSuccess: (id: Int) -> Unit = {}
+    fun setOnAddSuccessListener(onAddSuccess: (id: Int) -> Unit) {
         this.onAddSuccess = onAddSuccess
     }
 }

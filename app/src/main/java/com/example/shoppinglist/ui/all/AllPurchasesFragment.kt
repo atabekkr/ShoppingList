@@ -24,18 +24,31 @@ class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
         db = PurchaseDatabase.getInstance(requireContext())
         dao = db.getPurchaseDao()
 
-        adapter.models = dao.getAllLists().toMutableList()
-
         binding.apply {
             recyclerView.adapter = adapter
 
+            adapter.models = dao.getAllLists().toMutableList()
+
+            adapter.setOnItemClickListener { purchase, position ->
+                val bundle = Bundle()
+                bundle.putInt("id", purchase.id)
+
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, AddPurchaseFragment::class.java, bundle)
+                    .addToBackStack(AllPurchasesFragment::class.java.simpleName)
+                    .commit()
+            }
+
             fabAdd.setOnClickListener {
-                val dialog = AddPurchaseDialog()
+                val dialog = AddPurchaseDialog(adapter.models.size)
                 dialog.show(requireActivity().supportFragmentManager, dialog.tag)
 
-                dialog.setOnAddSuccessListener {
+                dialog.setOnAddSuccessListener { id ->
+                    val bundle = Bundle()
+                    bundle.putInt("id", id)
+
                     requireActivity().supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, AddPurchaseFragment())
+                        .replace(R.id.fragment_container, AddPurchaseFragment::class.java, bundle)
                         .addToBackStack(AddPurchaseFragment::class.java.simpleName)
                         .commit()
 

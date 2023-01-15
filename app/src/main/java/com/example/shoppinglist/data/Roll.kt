@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "rolls")
 data class Roll(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @ColumnInfo val topic_id: Int,
     @ColumnInfo val name: String
 )

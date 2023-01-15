@@ -1,6 +1,7 @@
 package com.example.shoppinglist.data
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 
@@ -11,4 +12,10 @@ interface RollDao {
 
     @Insert
     fun addRoll(roll: Roll)
+
+    @Delete
+    fun deleteRoll(roll: Roll)
+
+    @Query("Select * From rolls Where topic_id=:topicId")
+    fun getRoll(topicId: Int): MutableList<Roll>
 }
