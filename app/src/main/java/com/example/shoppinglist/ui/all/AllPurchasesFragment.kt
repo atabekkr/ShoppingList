@@ -7,10 +7,11 @@ import android.widget.PopupMenu
 import androidx.annotation.MenuRes
 import androidx.fragment.app.Fragment
 import com.example.shoppinglist.R
+import com.example.shoppinglist.data.Purchase
 import com.example.shoppinglist.data.PurchaseDao
 import com.example.shoppinglist.data.PurchaseDatabase
+import com.example.shoppinglist.data.RollDao
 import com.example.shoppinglist.databinding.FragmentPurchasesAllBinding
-import com.example.shoppinglist.databinding.ItemPurchaseBinding
 import com.example.shoppinglist.ui.PurchaseAdapter
 import com.example.shoppinglist.ui.add.AddPurchaseFragment
 import com.google.android.material.snackbar.Snackbar
@@ -20,6 +21,7 @@ class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
     private val adapter = PurchaseAdapter()
     private lateinit var db: PurchaseDatabase
     private lateinit var dao: PurchaseDao
+    private lateinit var rollDao: RollDao
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding = FragmentPurchasesAllBinding.bind(view)
@@ -27,14 +29,15 @@ class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
 
         db = PurchaseDatabase.getInstance(requireContext())
         dao = db.getPurchaseDao()
+        rollDao = db.getRollDao()
 
         binding.apply {
             recyclerView.adapter = adapter
 
             adapter.models = dao.getAllLists().toMutableList()
 
-            adapter.setOnMenuClickListener {
-                showMenu(it, R.menu.menu_purchase)
+            adapter.setOnMenuClickListener { v, purchase, position ->
+                showMenu(v, R.menu.menu_purchase, purchase, position)
             }
 
             adapter.setOnItemClickListener { purchase, position ->
@@ -48,7 +51,7 @@ class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
             }
 
             fabAdd.setOnClickListener {
-                val dialog = AddPurchaseDialog(adapter.models.size)
+                val dialog = AddPurchaseDialog(adapter.models.lastIndex)
                 dialog.show(requireActivity().supportFragmentManager, dialog.tag)
 
                 dialog.setOnAddSuccessListener { id ->
@@ -66,17 +69,47 @@ class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
         }
     }
 
-    private fun showMenu(v: View, @MenuRes menuRes: Int) {
+    private fun showMenu(v: View, @MenuRes menuRes: Int, purchase: Purchase, position: Int) {
         val popup = PopupMenu(requireContext(), v)
         popup.menuInflater.inflate(menuRes, popup.menu)
 
         popup.setOnMenuItemClickListener { menuItem: MenuItem ->
             when(menuItem.itemId) {
                 R.id.item1 -> {
-                    Snackbar.make(requireView(), "ozgert", Snackbar.LENGTH_SHORT).show()
+                    val bundle = Bundle()
+                    bundle.putString("name", purchase.name)
+
+                    val dialog = EditPurchaseDialog(purchase.id, purchase.name)
+                    dialog.show(requireActivity().supportFragmentManager, dialog.tag)
+
+                    dialog.setOnEditSuccessListener {
+                        adapter.models = dao.getAllLists().toMutableList()
+
+                        Snackbar.make(requireView(), "Ozgerdi", Snackbar.LENGTH_SHORT).show()
+                    }
+
+                   /* MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("Edit Contact")
+                        .setMessage("${purchase.name} di ozgerteyikpa")
+                        .setPositiveButton("Yes") { dialog, _ ->
+                            dao.updatePurchase(purchase)
+                            Snackbar.make(v, "Purchase edit successfully", Snackbar.LENGTH_SHORT)
+                                .show()
+                            dialog.dismiss()
+                        }
+                        .setNegativeButton("Cancel") { dialog, _ ->
+                            dialog.dismiss()
+                        }
+                        .show()*/
                 }
                 R.id.item2 -> {
-                    Snackbar.make(requireView(), "oshir", Snackbar.LENGTH_SHORT).show()
+                    dao.deletePurchase(purchase)
+                    adapter.removeAtPosition(position)
+
+                    rollDao.getRoll(purchase.id).forEach {
+                        rollDao.deleteRoll(it)
+                    }
+                    Snackbar.make(requireView(), "oshdi", Snackbar.LENGTH_SHORT).show()
                 }
             }
             true

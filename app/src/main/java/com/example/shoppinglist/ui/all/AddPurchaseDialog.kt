@@ -26,11 +26,10 @@ class AddPurchaseDialog(private val lastId: Int): DialogFragment(R.layout.dialog
 
                 if (name.isNotEmpty()) {
                     val purchase = Purchase(
-                        name = name,
+                        name = name
                     )
-
                     dao.addPurchase(purchase)
-                    onAddSuccess.invoke(lastId + 1)
+                    onAddSuccess.invoke(purchase.id) // purchase.id = 0
                     dismiss()
                 } else {
                     Toast.makeText(requireContext(), "Toltir", Toast.LENGTH_SHORT).show()

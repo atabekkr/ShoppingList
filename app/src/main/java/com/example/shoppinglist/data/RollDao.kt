@@ -18,4 +18,5 @@ interface RollDao {
 
     @Query("Select * From rolls Where topic_id=:topicId")
     fun getRoll(topicId: Int): MutableList<Roll>
+
 }

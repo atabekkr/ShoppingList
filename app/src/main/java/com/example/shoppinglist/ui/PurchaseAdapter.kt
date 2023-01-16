@@ -22,7 +22,7 @@ class PurchaseAdapter: Adapter<PurchaseAdapter.PurchaseViewHolder>() {
                 }
 
                 ivMenu.setOnClickListener { v  ->
-                    onMenuClick.invoke(v)
+                    onMenuClick.invoke(v, purchase, adapterPosition)
                 }
             }
         }
@@ -52,8 +52,13 @@ class PurchaseAdapter: Adapter<PurchaseAdapter.PurchaseViewHolder>() {
         this.onItemClick = onItemClick
     }
 
-    private var onMenuClick: (v: View) -> Unit = {}
-    fun setOnMenuClickListener(onMenuClick: (v: View) -> Unit) {
+    private var onMenuClick: (v: View, purchase: Purchase, a: Int) -> Unit = {_, _, _ ->}
+    fun setOnMenuClickListener(onMenuClick: (v: View, purchase: Purchase, position: Int) -> Unit) {
         this.onMenuClick = onMenuClick
+    }
+
+    fun removeAtPosition(position: Int) {
+        models.removeAt(position)
+        notifyItemRemoved(position)
     }
 }

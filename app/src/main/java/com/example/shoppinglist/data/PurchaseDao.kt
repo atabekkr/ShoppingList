@@ -1,8 +1,11 @@
 package com.example.shoppinglist.data
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface PurchaseDao {
@@ -11,4 +14,10 @@ interface PurchaseDao {
 
     @Insert(entity = Purchase::class)
     fun addPurchase(purchase: Purchase)
+
+    @Delete
+    fun deletePurchase(purchase: Purchase)
+
+    @Update(entity = Purchase::class, onConflict = OnConflictStrategy.REPLACE)
+    fun updatePurchase(purchase: Purchase)
 }
