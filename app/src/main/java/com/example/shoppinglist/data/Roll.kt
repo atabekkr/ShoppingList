@@ -8,5 +8,6 @@ import androidx.room.PrimaryKey
 data class Roll(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     @ColumnInfo val topic_id: Int,
-    @ColumnInfo val name: String
+    @ColumnInfo val name: String,
+    @ColumnInfo var done: Int
 )

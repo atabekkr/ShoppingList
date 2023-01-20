@@ -13,7 +13,7 @@ import com.example.shoppinglist.data.PurchaseDatabase
 import com.example.shoppinglist.data.RollDao
 import com.example.shoppinglist.databinding.FragmentPurchasesAllBinding
 import com.example.shoppinglist.ui.PurchaseAdapter
-import com.example.shoppinglist.ui.add.AddPurchaseFragment
+import com.example.shoppinglist.ui.add.AddRollFragment
 import com.google.android.material.snackbar.Snackbar
 
 class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
@@ -34,7 +34,6 @@ class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
         binding.apply {
             recyclerView.adapter = adapter
 
-            adapter.models = dao.getAllLists().toMutableList()
 
             adapter.setOnMenuClickListener { v, purchase, position ->
                 showMenu(v, R.menu.menu_purchase, purchase, position)
@@ -45,13 +44,20 @@ class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
                 bundle.putInt("id", purchase.id)
 
                 requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, AddPurchaseFragment::class.java, bundle)
+                    .replace(R.id.fragment_container, AddRollFragment::class.java, bundle)
                     .addToBackStack(AllPurchasesFragment::class.java.simpleName)
                     .commit()
             }
+            adapter.models = dao.getAllLists().toMutableList()
 
             fabAdd.setOnClickListener {
-                val dialog = AddPurchaseDialog(adapter.models.lastIndex)
+                var k = 0
+
+                if (adapter.models.size != 0) {
+                    k = adapter.models.last().id
+                 //   val kd = dao.getAllLists().last().id
+                }
+                val dialog = AddPurchaseDialog(k)
                 dialog.show(requireActivity().supportFragmentManager, dialog.tag)
 
                 dialog.setOnAddSuccessListener { id ->
@@ -59,8 +65,8 @@ class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
                     bundle.putInt("id", id)
 
                     requireActivity().supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, AddPurchaseFragment::class.java, bundle)
-                        .addToBackStack(AddPurchaseFragment::class.java.simpleName)
+                        .replace(R.id.fragment_container, AddRollFragment::class.java, bundle)
+                        .addToBackStack(AddRollFragment::class.java.simpleName)
                         .commit()
 
                     adapter.models = dao.getAllLists().toMutableList()

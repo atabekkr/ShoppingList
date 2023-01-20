@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.shoppinglist.R
 import com.example.shoppinglist.databinding.ActivityMainBinding
-import com.example.shoppinglist.ui.add.AddPurchaseFragment
 import com.example.shoppinglist.ui.all.AllPurchasesFragment
 
 class MainActivity : AppCompatActivity() {

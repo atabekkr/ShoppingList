@@ -11,7 +11,7 @@
         android:layout_height="0dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="vertical"
-        tools:listitem="@layout/item_purchase"
+        tools:listitem="@layout/item_roll"
         app:layout_constraintBottom_toTopOf="@id/til_field"
         app:layout_constraintTop_toTopOf="parent"/>
 
