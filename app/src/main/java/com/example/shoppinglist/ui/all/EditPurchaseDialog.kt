@@ -1,5 +1,6 @@
 package com.example.shoppinglist.ui.all
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -9,8 +10,10 @@ import com.example.shoppinglist.data.Purchase
 import com.example.shoppinglist.data.PurchaseDao
 import com.example.shoppinglist.data.PurchaseDatabase
 import com.example.shoppinglist.databinding.DialogPurchaseEditBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
-class EditPurchaseDialog(id: Int, var name: String): DialogFragment(R.layout.dialog_purchase_edit) {
+class EditPurchaseDialog(id: Int, var name: String, private var date: String): DialogFragment(R.layout.dialog_purchase_edit) {
     private lateinit var binding: DialogPurchaseEditBinding
     private lateinit var db: PurchaseDatabase
     private lateinit var dao: PurchaseDao
@@ -24,6 +27,11 @@ class EditPurchaseDialog(id: Int, var name: String): DialogFragment(R.layout.dia
         db = PurchaseDatabase.getInstance(requireContext())
         dao = db.getPurchaseDao()
 
+        val c = Calendar.getInstance()
+        val myFormat = "dd-MM-yyyy"
+        val sdf = SimpleDateFormat(myFormat, Locale.UK)
+        date = sdf.format(c.time)
+
 
         binding.apply {
             etName.setText(name)
@@ -34,7 +42,8 @@ class EditPurchaseDialog(id: Int, var name: String): DialogFragment(R.layout.dia
                 if (name.isNotEmpty()) {
                     val purchase = Purchase(
                         id = select,
-                        name = name
+                        name = name,
+                        date = date
                     )
                     dao.updatePurchase(purchase)
                     onEditSuccess.invoke()
@@ -42,8 +51,26 @@ class EditPurchaseDialog(id: Int, var name: String): DialogFragment(R.layout.dia
                 } else {
                     Toast.makeText(requireContext(), "Toltir", Toast.LENGTH_SHORT).show()
                 }
+
+                val dpd = DatePickerDialog.OnDateSetListener { datePicker, year, month, dayOfMonth ->
+                    c.set(Calendar.YEAR, year)
+                    c.set(Calendar.MONTH, month)
+                    c.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                    updateLable(c)
+                }
+
+                tvDate.setOnClickListener {
+                    DatePickerDialog(requireContext(), dpd, c.get(Calendar.YEAR),
+                    c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show()
+                }
             }
         }
+    }
+
+    private fun updateLable(c: Calendar) {
+        val myFormat = "dd-MM-yyyy"
+        val sdf = SimpleDateFormat(myFormat, Locale.UK)
+        date = sdf.format(c.time)
     }
 
     private var onEditSuccess: () -> Unit = {}

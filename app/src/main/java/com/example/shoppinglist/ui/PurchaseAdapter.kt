@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Purchase
 import com.example.shoppinglist.databinding.ItemPurchaseBinding
+import java.util.Calendar
 
 class PurchaseAdapter: Adapter<PurchaseAdapter.PurchaseViewHolder>() {
 
@@ -16,7 +17,7 @@ class PurchaseAdapter: Adapter<PurchaseAdapter.PurchaseViewHolder>() {
         fun bind(purchase: Purchase) {
             binding.apply {
                 tvName.text = purchase.name
-
+                tvDate.text = purchase.date
                 cvPurchase.setOnClickListener {
                     onItemClick.invoke(purchase, adapterPosition)
                 }

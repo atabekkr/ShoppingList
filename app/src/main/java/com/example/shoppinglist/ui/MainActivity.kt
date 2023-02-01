@@ -13,26 +13,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, AllPurchasesFragment())
-            .commit()
 
-      /*  binding.apply {
-            bnvMain.setOnItemSelectedListener {
-                when (it.itemId) {
-                    R.id.item_main -> {
-                        supportFragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, AllPurchasesFragment())
-                            .commit()
-                    }
-                    R.id.item_sale -> {
-                        supportFragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, AddPurchaseFragment())
-                            .commit()
-                    }
-                }
-                true
-            }
-        }*/
     }
 }

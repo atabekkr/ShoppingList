@@ -2,22 +2,28 @@ package com.example.shoppinglist.ui
 
 import android.annotation.SuppressLint
 import android.graphics.Paint
-import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+
 import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView.Adapter
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import androidx.recyclerview.widget.SortedList
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Roll
 import com.example.shoppinglist.databinding.ItemRollBinding
+import com.example.shoppinglist.ui.RollAdapter.RollViewHolder
+import com.example.shoppinglist.ui.add.DiffCallback
+import java.util.Calendar
 
 
-class RollAdapter: Adapter<RollAdapter.RollViewHolder>() {
+class RollAdapter : ListAdapter<Roll, RollViewHolder>(DiffCall()) {
 
-    inner class RollViewHolder(private val binding: ItemRollBinding): ViewHolder(binding.root) {
+    inner class RollViewHolder(private val binding: ItemRollBinding) : ViewHolder(binding.root) {
 
         fun bind(roll: Roll) {
             binding.apply {
@@ -26,34 +32,17 @@ class RollAdapter: Adapter<RollAdapter.RollViewHolder>() {
                 ivMenu.setOnClickListener {
                     onMenuClick.invoke(it, roll, adapterPosition)
                 }
+                ckCompleted.isChecked = roll.done
+                updateStrokeOut(roll, tvName)
 
-                updateStrokeOut(roll, tvName, ckCompleted)
-
-                ckCompleted.setOnCheckedChangeListener { compoundButton, checked ->
-                    if (checked) {
-                        roll.done = 1
-                    } else {
-                        roll.done = 0
-                    }
-//                    ckCompleted.isChecked = checked
-                    updateStrokeOut(roll, tvName, ckCompleted)
-                    onDoneClick.invoke(roll)
+                ckCompleted.setOnCheckedChangeListener { _, checked ->
+                    roll.done = checked
+                    updateStrokeOut(roll, tvName)
+                    onDoneClick?.invoke(roll, checked)
                 }
-
             }
         }
 
-    }
-
-    var items = mutableListOf<Roll>()
-        @SuppressLint("NotifyDataSetChanged")
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
-
-    override fun getItemCount(): Int {
-        return items.size
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RollViewHolder {
@@ -62,39 +51,36 @@ class RollAdapter: Adapter<RollAdapter.RollViewHolder>() {
         return RollViewHolder(binding)
     }
 
+
     override fun onBindViewHolder(holder: RollViewHolder, position: Int) {
-        holder.bind(items[position])
+        holder.bind(currentList[position])
     }
 
-    private var onMenuClick: (v: View, roll: Roll, a: Int) -> Unit = {_, _, _ ->}
+    private var onMenuClick: (v: View, roll: Roll, a: Int) -> Unit = { _, _, _ -> }
     fun setOnMenuClickListener(onMenuClick: (v: View, roll: Roll, a: Int) -> Unit) {
         this.onMenuClick = onMenuClick
     }
 
-    fun removeAtPosition(position: Int) {
-        items.removeAt(position)
-        notifyItemRemoved(position)
-    }
-
-    private var onDoneClick: (roll: Roll) -> Unit = {}
-    fun setOnDoneClick(onDoneClick: (roll: Roll) -> Unit) {
+    private var onDoneClick: ((roll: Roll, isDone: Boolean) -> Unit)? = null
+    fun setOnDoneClick(onDoneClick: (roll: Roll, isDone: Boolean) -> Unit) {
         this.onDoneClick = onDoneClick
     }
 
-    fun updateRoll(position: Int) {
-        val currentRoll = items[position]
-        val newRoll = currentRoll.copy(done = 1 - currentRoll.done)
-        items[position] = newRoll
-        notifyItemChanged(position)
-    }
-
-    fun updateStrokeOut(roll: Roll, tv: TextView, ck: CheckBox) {
-        if (roll.done == 1) {
-            ck.isChecked = true
+    private fun updateStrokeOut(roll: Roll, tv: TextView) {
+        if (roll.done) {
             tv.paintFlags = tv.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
         } else {
-            ck.isChecked = false
             tv.paintFlags = tv.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
         }
+    }
+}
+
+private class DiffCall : DiffUtil.ItemCallback<Roll>() {
+    override fun areItemsTheSame(oldItem: Roll, newItem: Roll): Boolean {
+        return oldItem.id == newItem.id
+    }
+
+    override fun areContentsTheSame(oldItem: Roll, newItem: Roll): Boolean {
+        return oldItem.id == newItem.id && oldItem.name == newItem.name
     }
 }

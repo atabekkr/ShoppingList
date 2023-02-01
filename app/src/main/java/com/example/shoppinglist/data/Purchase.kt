@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "purchases")
 data class Purchase(
     @PrimaryKey val id: Int,
-    @ColumnInfo(name = "name") val name: String
+    @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo(name = "date") val date: String
 )

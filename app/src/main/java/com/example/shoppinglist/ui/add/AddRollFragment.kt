@@ -1,7 +1,8 @@
 package com.example.shoppinglist.ui.add
 
+import android.annotation.SuppressLint
+import android.app.ProgressDialog.show
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
 import android.widget.Toast
@@ -12,28 +13,37 @@ import com.example.shoppinglist.R
 import com.example.shoppinglist.data.PurchaseDatabase
 import com.example.shoppinglist.data.Roll
 import com.example.shoppinglist.data.RollDao
-import com.example.shoppinglist.databinding.FragmentPurchaseAddBinding
+import com.example.shoppinglist.databinding.FragmentPurchaseRollBinding
 import com.example.shoppinglist.ui.RollAdapter
 import com.google.android.material.snackbar.Snackbar
+import java.util.Collections.addAll
+import java.util.Collections.list
 
-class AddRollFragment: Fragment(R.layout.fragment_purchase_add) {
-    private lateinit var binding: FragmentPurchaseAddBinding
+class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
+    private lateinit var binding: FragmentPurchaseRollBinding
     private val adapter = RollAdapter()
     private lateinit var db: PurchaseDatabase
     private lateinit var dao: RollDao
+    private var listOfRolls = mutableListOf<Roll>()
+    private  var idDelete: Int = 0
 
+    @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentPurchaseAddBinding.bind(view)
+        binding = FragmentPurchaseRollBinding.bind(view)
 
         db = PurchaseDatabase.getInstance(requireContext())
         dao = db.getRollDao()
 
         val id = arguments?.getInt("id") ?: 0
-        println("id*********************************** $id")
+        idDelete = id
 
-        adapter.items = dao.getRoll(id)
+        listOfRolls = (dao.getRoll(id))
 
+        listOfRolls.sortBy {
+            it.done
+        }
+        adapter.submitList(listOfRolls)
 
         binding.apply {
             recyclerView.adapter = adapter
@@ -41,13 +51,14 @@ class AddRollFragment: Fragment(R.layout.fragment_purchase_add) {
             tilField.setEndIconOnClickListener {
                 if (etName.text.toString().isNotEmpty()) {
                     val roll = Roll(
-                        name = etName.text.toString(),
-                        topic_id = id,
-                        done = 0
+                        name = etName.text.toString(), topic_id = id, done = false
                     )
                     dao.addRoll(roll)
                     etName.text?.clear()
-                    adapter.items = dao.getRoll(id)
+                    listOfRolls = dao.getRoll(id)
+                    listOfRolls.sortBy { it.done }
+                    adapter.submitList(listOfRolls)
+
                 } else {
                     Toast.makeText(requireContext(), "Toltir", Toast.LENGTH_SHORT).show()
                 }
@@ -56,8 +67,16 @@ class AddRollFragment: Fragment(R.layout.fragment_purchase_add) {
                 show(v, R.menu.menu_purchase, roll, position)
             }
 
-            adapter.setOnDoneClick { roll ->
+            adapter.setOnDoneClick { roll, isDone ->
                 dao.updateRoll(roll)
+
+                    listOfRolls = dao.getRoll(id)
+                println("ne minaw ---- ${dao.getRoll(id)}")
+
+                    listOfRolls.sortBy { it.id }
+                    listOfRolls.sortBy { it.done }
+
+                    adapter.submitList(listOfRolls)
             }
         }
     }
@@ -66,21 +85,41 @@ class AddRollFragment: Fragment(R.layout.fragment_purchase_add) {
         val popup = PopupMenu(requireContext(), v)
         popup.menuInflater.inflate(menuRes, popup.menu)
 
-        popup.setOnMenuItemClickListener {
+        popup.setOnMenuItemClickListener { it ->
             when (it.itemId) {
                 R.id.item1 -> {
                     val dialog = EditRollDialog(roll.id, roll.topic_id, roll.name, roll.done)
                     dialog.show(requireActivity().supportFragmentManager, dialog.tag)
 
                     dialog.setOnEditRollListener {
-                        adapter.items = dao.getAllRoll().toMutableList()
+
+                        println("********************* ${dao.getRoll(it.topic_id)}")
+                        listOfRolls = dao.getRoll(it.topic_id)
+
+                        listOfRolls.sortBy {  roll ->
+                            roll.id
+                        }
+                        listOfRolls.sortBy {  roll ->
+                            roll.done
+                        }
+                        println("--------------------$listOfRolls")
+
+                        adapter.submitList(listOfRolls)
 
                         Snackbar.make(v, "Ozgerdi", Snackbar.LENGTH_SHORT).show()
                     }
                 }
                 R.id.item2 -> {
                     dao.deleteRoll(roll)
-                    adapter.removeAtPosition(position)
+                    listOfRolls = dao.getRoll(idDelete)
+
+                    listOfRolls.sortBy {  roll ->
+                        roll.id }
+
+                    listOfRolls.sortBy {  roll ->
+                        roll.done }
+
+                    adapter.submitList(listOfRolls)
                 }
             }
             true

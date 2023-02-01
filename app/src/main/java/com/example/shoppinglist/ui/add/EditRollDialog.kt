@@ -11,7 +11,7 @@ import com.example.shoppinglist.data.Roll
 import com.example.shoppinglist.data.RollDao
 import com.example.shoppinglist.databinding.DialogPurchaseEditBinding
 
-class EditRollDialog(id: Int, private val topicId: Int, var name: String, private var done: Int): DialogFragment(R.layout.dialog_purchase_edit) {
+class EditRollDialog(id: Int, private val topicId: Int, private val name: String, private val done: Boolean): DialogFragment(R.layout.dialog_purchase_edit) {
     private lateinit var binding: DialogPurchaseEditBinding
     private lateinit var db: PurchaseDatabase
     private lateinit var dao: RollDao
@@ -38,7 +38,8 @@ class EditRollDialog(id: Int, private val topicId: Int, var name: String, privat
                         done
                     )
                     dao.updateRoll(roll)
-                    onEditRoll.invoke()
+                    println("###################${dao.getRoll(topicId)}")
+                    onEditRoll.invoke(roll)
                     dismiss()
                 } else {
                     Toast.makeText(requireContext(), "Toltir", Toast.LENGTH_SHORT).show()
@@ -47,8 +48,8 @@ class EditRollDialog(id: Int, private val topicId: Int, var name: String, privat
         }
     }
 
-    private var onEditRoll: () -> Unit = {}
-    fun setOnEditRollListener(onEditRoll: () -> Unit) {
+    private var onEditRoll: (roll: Roll) -> Unit = {}
+    fun setOnEditRollListener(onEditRoll: (roll: Roll) -> Unit) {
         this.onEditRoll = onEditRoll
     }
 

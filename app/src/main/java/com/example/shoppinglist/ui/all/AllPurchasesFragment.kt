@@ -5,7 +5,12 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
 import androidx.annotation.MenuRes
+import androidx.compose.ui.graphics.colorspace.Illuminant.A
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Purchase
 import com.example.shoppinglist.data.PurchaseDao
@@ -14,9 +19,10 @@ import com.example.shoppinglist.data.RollDao
 import com.example.shoppinglist.databinding.FragmentPurchasesAllBinding
 import com.example.shoppinglist.ui.PurchaseAdapter
 import com.example.shoppinglist.ui.add.AddRollFragment
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 
-class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
+class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
     private lateinit var binding: FragmentPurchasesAllBinding
     private val adapter = PurchaseAdapter()
     private lateinit var db: PurchaseDatabase
@@ -42,11 +48,8 @@ class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
             adapter.setOnItemClickListener { purchase, position ->
                 val bundle = Bundle()
                 bundle.putInt("id", purchase.id)
+                findNavController().navigate(R.id.action_allPurchasesFragment_to_addRollFragment, bundle)
 
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, AddRollFragment::class.java, bundle)
-                    .addToBackStack(AllPurchasesFragment::class.java.simpleName)
-                    .commit()
             }
             adapter.models = dao.getAllLists().toMutableList()
 
@@ -55,7 +58,7 @@ class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
 
                 if (adapter.models.size != 0) {
                     k = adapter.models.last().id
-                 //   val kd = dao.getAllLists().last().id
+                    //   val kd = dao.getAllLists().last().id
                 }
                 val dialog = AddPurchaseDialog(k)
                 dialog.show(requireActivity().supportFragmentManager, dialog.tag)
@@ -63,12 +66,7 @@ class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
                 dialog.setOnAddSuccessListener { id ->
                     val bundle = Bundle()
                     bundle.putInt("id", id)
-
-                    requireActivity().supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, AddRollFragment::class.java, bundle)
-                        .addToBackStack(AddRollFragment::class.java.simpleName)
-                        .commit()
-
+                    findNavController().navigate(R.id.action_allPurchasesFragment_to_addRollFragment, bundle)
                     adapter.models = dao.getAllLists().toMutableList()
                 }
             }
@@ -80,12 +78,12 @@ class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
         popup.menuInflater.inflate(menuRes, popup.menu)
 
         popup.setOnMenuItemClickListener { menuItem: MenuItem ->
-            when(menuItem.itemId) {
+            when (menuItem.itemId) {
                 R.id.item1 -> {
                     val bundle = Bundle()
                     bundle.putString("name", purchase.name)
 
-                    val dialog = EditPurchaseDialog(purchase.id, purchase.name)
+                    val dialog = EditPurchaseDialog(purchase.id, purchase.name, purchase.date)
                     dialog.show(requireActivity().supportFragmentManager, dialog.tag)
 
                     dialog.setOnEditSuccessListener {
@@ -93,20 +91,6 @@ class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
 
                         Snackbar.make(requireView(), "Ozgerdi", Snackbar.LENGTH_SHORT).show()
                     }
-
-                   /* MaterialAlertDialogBuilder(requireContext())
-                        .setTitle("Edit Contact")
-                        .setMessage("${purchase.name} di ozgerteyikpa")
-                        .setPositiveButton("Yes") { dialog, _ ->
-                            dao.updatePurchase(purchase)
-                            Snackbar.make(v, "Purchase edit successfully", Snackbar.LENGTH_SHORT)
-                                .show()
-                            dialog.dismiss()
-                        }
-                        .setNegativeButton("Cancel") { dialog, _ ->
-                            dialog.dismiss()
-                        }
-                        .show()*/
                 }
                 R.id.item2 -> {
                     dao.deletePurchase(purchase)
@@ -119,7 +103,7 @@ class AllPurchasesFragment: Fragment(R.layout.fragment_purchases_all) {
                 }
             }
             true
-         }
+        }
 
         popup.show()
     }
