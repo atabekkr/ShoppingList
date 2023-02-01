@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.annotation.MenuRes
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
+import com.example.shoppinglist.NewRollAdapter
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.PurchaseDatabase
 import com.example.shoppinglist.data.Roll
@@ -21,7 +22,7 @@ import java.util.Collections.list
 
 class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
     private lateinit var binding: FragmentPurchaseRollBinding
-    private val adapter = RollAdapter()
+    private val adapter = NewRollAdapter()
     private lateinit var db: PurchaseDatabase
     private lateinit var dao: RollDao
     private var listOfRolls = mutableListOf<Roll>()
@@ -38,7 +39,7 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
         val id = arguments?.getInt("id") ?: 0
         idDelete = id
 
-        listOfRolls = (dao.getRoll(id))
+        listOfRolls.addAll(dao.getRoll(id))
 
         listOfRolls.sortBy {
             it.done
@@ -63,25 +64,25 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
                     Toast.makeText(requireContext(), "Toltir", Toast.LENGTH_SHORT).show()
                 }
             }
-            adapter.setOnMenuClickListener { v, roll, position ->
-                show(v, R.menu.menu_purchase, roll, position)
+
+            adapter.setOnMenuClickListener { v, roll ->
+                show(v, R.menu.menu_purchase, roll)
             }
 
-            adapter.setOnDoneClick { roll, isDone ->
+            adapter.setOnDoneClick { roll ->
                 dao.updateRoll(roll)
+                
+                listOfRolls = (dao.getRoll(id))
 
-                    listOfRolls = dao.getRoll(id)
-                println("ne minaw ---- ${dao.getRoll(id)}")
+                listOfRolls.sortBy { it.id }
+                listOfRolls.sortBy { it.done }
 
-                    listOfRolls.sortBy { it.id }
-                    listOfRolls.sortBy { it.done }
-
-                    adapter.submitList(listOfRolls)
+                adapter.submitList(listOfRolls)
             }
         }
     }
 
-    private fun show(v: View, @MenuRes menuRes: Int, roll: Roll, position: Int) {
+    private fun show(v: View, @MenuRes menuRes: Int, roll: Roll) {
         val popup = PopupMenu(requireContext(), v)
         popup.menuInflater.inflate(menuRes, popup.menu)
 
@@ -93,16 +94,15 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
 
                     dialog.setOnEditRollListener {
 
-                        println("********************* ${dao.getRoll(it.topic_id)}")
                         listOfRolls = dao.getRoll(it.topic_id)
 
                         listOfRolls.sortBy {  roll ->
                             roll.id
                         }
+
                         listOfRolls.sortBy {  roll ->
                             roll.done
                         }
-                        println("--------------------$listOfRolls")
 
                         adapter.submitList(listOfRolls)
 

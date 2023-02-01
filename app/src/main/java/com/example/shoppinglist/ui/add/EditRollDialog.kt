@@ -10,16 +10,17 @@ import com.example.shoppinglist.data.PurchaseDatabase
 import com.example.shoppinglist.data.Roll
 import com.example.shoppinglist.data.RollDao
 import com.example.shoppinglist.databinding.DialogPurchaseEditBinding
+import com.example.shoppinglist.databinding.DialogRollEditBinding
 
-class EditRollDialog(id: Int, private val topicId: Int, private val name: String, private val done: Boolean): DialogFragment(R.layout.dialog_purchase_edit) {
-    private lateinit var binding: DialogPurchaseEditBinding
+class EditRollDialog(id: Int, private val topicId: Int, private val name: String, private val done: Boolean): DialogFragment(R.layout.dialog_roll_edit) {
+    private lateinit var binding: DialogRollEditBinding
     private lateinit var db: PurchaseDatabase
     private lateinit var dao: RollDao
     private val select = id
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = DialogPurchaseEditBinding.bind(view)
+        binding = DialogRollEditBinding.bind(view)
 
         db = PurchaseDatabase.getInstance(requireContext())
         dao = db.getRollDao()

@@ -1,8 +1,10 @@
 package com.example.shoppinglist
 
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -17,13 +19,24 @@ class NewRollAdapter: ListAdapter<Roll, NewRollAdapter.RollViewHolder>(DiffCall(
             binding.apply {
                 tvName.text = roll.name
 
-
                 ivMenu.setOnClickListener {
                     onMenuClick.invoke(it, roll)
                 }
 
+                ckCompleted.isChecked = roll.done
+                updateStrokeOut(roll, tvName)
 
+                /*ckCompleted.setOnCheckedChangeListener { _, checked ->
+                    roll.done = checked
+                    updateStrokeOut(roll, tvName)
+                    onDoneClick?.invoke(roll, checked)
+                }*/
 
+                ckCompleted.setOnClickListener {
+                    roll.done = ckCompleted.isChecked
+                    updateStrokeOut(roll, tvName)
+                    onDoneClick?.invoke(roll)
+                }
             }
         }
 
@@ -42,6 +55,19 @@ class NewRollAdapter: ListAdapter<Roll, NewRollAdapter.RollViewHolder>(DiffCall(
     private var onMenuClick: (v: View, roll: Roll) -> Unit = { _, _-> }
     fun setOnMenuClickListener(onMenuClick: (v: View, roll: Roll) -> Unit) {
         this.onMenuClick = onMenuClick
+    }
+
+    private var onDoneClick: ((roll: Roll) -> Unit)? = null
+    fun setOnDoneClick(onDoneClick: (roll: Roll) -> Unit) {
+        this.onDoneClick = onDoneClick
+    }
+
+    private fun updateStrokeOut(roll: Roll, tv: TextView) {
+        if (roll.done) {
+            tv.paintFlags = tv.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+        } else {
+            tv.paintFlags = tv.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+        }
     }
 }
 

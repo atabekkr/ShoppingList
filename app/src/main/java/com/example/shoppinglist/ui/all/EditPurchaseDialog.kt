@@ -28,13 +28,10 @@ class EditPurchaseDialog(id: Int, var name: String, private var date: String): D
         dao = db.getPurchaseDao()
 
         val c = Calendar.getInstance()
-        val myFormat = "dd-MM-yyyy"
-        val sdf = SimpleDateFormat(myFormat, Locale.UK)
-        date = sdf.format(c.time)
-
 
         binding.apply {
             etName.setText(name)
+            tvDate.text = date
 
             btnSave.setOnClickListener {
                 val name = etName.text.toString()
@@ -51,18 +48,18 @@ class EditPurchaseDialog(id: Int, var name: String, private var date: String): D
                 } else {
                     Toast.makeText(requireContext(), "Toltir", Toast.LENGTH_SHORT).show()
                 }
+            }
 
-                val dpd = DatePickerDialog.OnDateSetListener { datePicker, year, month, dayOfMonth ->
-                    c.set(Calendar.YEAR, year)
-                    c.set(Calendar.MONTH, month)
-                    c.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                    updateLable(c)
-                }
+            val dpd = DatePickerDialog.OnDateSetListener { datePicker, year, month, dayOfMonth ->
+            c.set(Calendar.YEAR, year)
+            c.set(Calendar.MONTH, month)
+            c.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            updateLable(c)
+        }
 
-                tvDate.setOnClickListener {
-                    DatePickerDialog(requireContext(), dpd, c.get(Calendar.YEAR),
+            tvDate.setOnClickListener {
+                DatePickerDialog(requireContext(), dpd, c.get(Calendar.YEAR),
                     c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show()
-                }
             }
         }
     }
