@@ -64,10 +64,10 @@ class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
                 dialog.show(requireActivity().supportFragmentManager, dialog.tag)
 
                 dialog.setOnAddSuccessListener { id ->
-                    val bundle = Bundle()
-                    bundle.putInt("id", id)
-                    findNavController().navigate(R.id.action_allPurchasesFragment_to_addRollFragment, bundle)
-                    adapter.models = dao.getAllLists().toMutableList()
+
+                    findNavController().navigate(
+                        AllPurchasesFragmentDirections.actionAllPurchasesFragmentToAddRollFragment(id)
+                    )
                 }
             }
         }

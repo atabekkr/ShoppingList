@@ -15,5 +15,9 @@
     <fragment
         android:id="@+id/addRollFragment"
         android:name="com.example.shoppinglist.ui.add.AddRollFragment"
-        android:label="AddRollFragment" />
+        android:label="AddRollFragment" >
+        <argument
+            android:name="id"
+            app:argType="integer" />
+    </fragment>
 </navigation>

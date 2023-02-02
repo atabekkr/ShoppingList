@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.annotation.MenuRes
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.navArgs
 import com.example.shoppinglist.NewRollAdapter
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.PurchaseDatabase
@@ -26,7 +27,7 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
     private lateinit var db: PurchaseDatabase
     private lateinit var dao: RollDao
     private var listOfRolls = mutableListOf<Roll>()
-    private  var idDelete: Int = 0
+    private val navArgs: AddRollFragmentArgs by navArgs()
 
     @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -36,8 +37,7 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
         db = PurchaseDatabase.getInstance(requireContext())
         dao = db.getRollDao()
 
-        val id = arguments?.getInt("id") ?: 0
-        idDelete = id
+        val id = navArgs.id
 
         listOfRolls.addAll(dao.getRoll(id))
 
@@ -72,7 +72,7 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
             adapter.setOnDoneClick { roll ->
                 dao.updateRoll(roll)
                 
-                listOfRolls = (dao.getRoll(id))
+                listOfRolls = dao.getRoll(id)
 
                 listOfRolls.sortBy { it.id }
                 listOfRolls.sortBy { it.done }
@@ -106,12 +106,14 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
 
                         adapter.submitList(listOfRolls)
 
-                        Snackbar.make(v, "Ozgerdi", Snackbar.LENGTH_SHORT).show()
+                        if (roll.name != it.name) {
+                            Snackbar.make(v, "Ozgerdi", Snackbar.LENGTH_SHORT).show()
+                        }
                     }
                 }
                 R.id.item2 -> {
                     dao.deleteRoll(roll)
-                    listOfRolls = dao.getRoll(idDelete)
+                    listOfRolls = dao.getRoll(roll.topic_id)
 
                     listOfRolls.sortBy {  roll ->
                         roll.id }

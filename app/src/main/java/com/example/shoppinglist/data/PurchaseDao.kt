@@ -20,4 +20,7 @@ interface PurchaseDao {
 
     @Update(entity = Purchase::class, onConflict = OnConflictStrategy.REPLACE)
     fun updatePurchase(purchase: Purchase)
+
+    @Query("SELECT * FROM purchases WHERE id=:topicId")
+    fun getPurchase(topicId: Int): Purchase
 }

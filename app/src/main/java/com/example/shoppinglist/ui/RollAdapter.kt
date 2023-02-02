@@ -17,8 +17,7 @@ import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Roll
 import com.example.shoppinglist.databinding.ItemRollBinding
 import com.example.shoppinglist.ui.RollAdapter.RollViewHolder
-import com.example.shoppinglist.ui.add.DiffCallback
-import java.util.Calendar
+
 
 
 class RollAdapter : ListAdapter<Roll, RollViewHolder>(DiffCall()) {
