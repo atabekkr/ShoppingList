@@ -1,8 +1,9 @@
 package com.example.shoppinglist.ui
 
-import android.content.Context
+import android.opengl.Visibility
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
@@ -17,8 +18,11 @@ class AllRollAdapter(private val dao: PurchaseDao): ListAdapter<Roll, InnerViewH
         fun bind(roll: Roll) {
             binding.apply {
                 tvNameAll.text = roll.name
-                tvPurchase.text = dao.getPurchase(roll.topic_id).name
+                tvPurchase.text =  dao.getPurchase(roll.topic_id).name
             }
+
+            updateStrokeOut(roll, binding.tvNameAll)
+
         }
     }
 
@@ -30,6 +34,15 @@ class AllRollAdapter(private val dao: PurchaseDao): ListAdapter<Roll, InnerViewH
 
     override fun onBindViewHolder(holder: InnerViewHolder, position: Int) {
         holder.bind(currentList[position])
+    }
+
+    fun updateStrokeOut(roll: Roll, tv: TextView) {
+        if (roll.done) {
+            tv.isEnabled = false
+            tv.paintFlags = tv.paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+        } else {
+            tv.paintFlags = tv.paintFlags and android.graphics.Paint.STRIKE_THRU_TEXT_FLAG.inv()
+        }
     }
 }
 

@@ -5,4 +5,7 @@
     <string name="text_delete">Удалить</string>
     <string name="text_edit">Изменить</string>
     <string name="text_dissmis">Отмена</string>
+    <string name="text_purchase">Список: %s</string>
+    <string name="tv_main_purchase">Список</string>
+    <string name="text_save">Save</string>
 </resources>

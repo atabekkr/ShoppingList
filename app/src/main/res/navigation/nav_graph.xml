@@ -20,4 +20,8 @@
             android:name="id"
             app:argType="integer" />
     </fragment>
+    <fragment
+        android:id="@+id/allItemFragment"
+        android:name="com.example.shoppinglist.ui.all.AllItemFragment"
+        android:label="AllItemFragment" />
 </navigation>

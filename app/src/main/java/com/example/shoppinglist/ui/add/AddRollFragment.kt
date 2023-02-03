@@ -1,31 +1,29 @@
 package com.example.shoppinglist.ui.add
 
 import android.annotation.SuppressLint
-import android.app.ProgressDialog.show
 import android.os.Bundle
 import android.view.View
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.annotation.MenuRes
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.shoppinglist.NewRollAdapter
+import com.example.shoppinglist.ui.NewRollAdapter
 import com.example.shoppinglist.R
+import com.example.shoppinglist.data.PurchaseDao
 import com.example.shoppinglist.data.PurchaseDatabase
 import com.example.shoppinglist.data.Roll
 import com.example.shoppinglist.data.RollDao
 import com.example.shoppinglist.databinding.FragmentPurchaseRollBinding
-import com.example.shoppinglist.ui.RollAdapter
 import com.google.android.material.snackbar.Snackbar
-import java.util.Collections.addAll
-import java.util.Collections.list
 
 class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
     private lateinit var binding: FragmentPurchaseRollBinding
     private val adapter = NewRollAdapter()
     private lateinit var db: PurchaseDatabase
     private lateinit var dao: RollDao
+    private lateinit var daoPurchase: PurchaseDao
     private var listOfRolls = mutableListOf<Roll>()
     private val navArgs: AddRollFragmentArgs by navArgs()
 
@@ -36,6 +34,7 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
 
         db = PurchaseDatabase.getInstance(requireContext())
         dao = db.getRollDao()
+        daoPurchase = db.getPurchaseDao()
 
         val id = navArgs.id
 
@@ -48,6 +47,8 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
 
         binding.apply {
             recyclerView.adapter = adapter
+
+            tvName.text = daoPurchase.getPurchase(id).name
 
             tilField.setEndIconOnClickListener {
                 if (etName.text.toString().isNotEmpty()) {
@@ -78,6 +79,10 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
                 listOfRolls.sortBy { it.done }
 
                 adapter.submitList(listOfRolls)
+            }
+
+            btnBack.setOnClickListener {
+                findNavController().popBackStack(R.id.allPurchasesFragment, false)
             }
         }
     }

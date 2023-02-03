@@ -40,7 +40,6 @@ class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
         binding.apply {
             recyclerView.adapter = adapter
 
-
             adapter.setOnMenuClickListener { v, purchase, position ->
                 showMenu(v, R.menu.menu_purchase, purchase, position)
             }

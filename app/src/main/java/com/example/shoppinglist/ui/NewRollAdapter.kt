@@ -1,4 +1,4 @@
-package com.example.shoppinglist
+package com.example.shoppinglist.ui
 
 import android.graphics.Paint
 import android.view.LayoutInflater
@@ -8,10 +8,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Roll
 import com.example.shoppinglist.databinding.ItemRollBinding
 
-class NewRollAdapter: ListAdapter<Roll, NewRollAdapter.RollViewHolder>(DiffCall()) {
+class NewRollAdapter: ListAdapter<Roll, NewRollAdapter.RollViewHolder>(DiffCallBack()) {
 
     inner class RollViewHolder(private val binding: ItemRollBinding) : RecyclerView.ViewHolder(binding.root) {
 
@@ -64,19 +65,21 @@ class NewRollAdapter: ListAdapter<Roll, NewRollAdapter.RollViewHolder>(DiffCall(
 
     private fun updateStrokeOut(roll: Roll, tv: TextView) {
         if (roll.done) {
+            tv.isEnabled = false
             tv.paintFlags = tv.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
         } else {
+            tv.isEnabled = true
             tv.paintFlags = tv.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
         }
     }
 }
 
-private class DiffCall : DiffUtil.ItemCallback<Roll>() {
+private class DiffCallBack : DiffUtil.ItemCallback<Roll>() {
     override fun areItemsTheSame(oldItem: Roll, newItem: Roll): Boolean {
-        return oldItem.id == newItem.id
+        return oldItem == newItem
     }
 
     override fun areContentsTheSame(oldItem: Roll, newItem: Roll): Boolean {
-        return oldItem == newItem
+        return oldItem == newItem // && oldItem.name==newItem.name && oldItem.done==newItem.done && oldItem.topic_id==newItem.topic_id
     }
 }
