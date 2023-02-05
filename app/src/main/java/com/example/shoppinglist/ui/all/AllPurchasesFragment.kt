@@ -8,6 +8,7 @@ import androidx.annotation.MenuRes
 import androidx.compose.ui.graphics.colorspace.Illuminant.A
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
@@ -21,6 +22,7 @@ import com.example.shoppinglist.ui.PurchaseAdapter
 import com.example.shoppinglist.ui.add.AddRollFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 
 class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
     private lateinit var binding: FragmentPurchasesAllBinding
@@ -41,16 +43,23 @@ class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
             recyclerView.adapter = adapter
 
             adapter.setOnMenuClickListener { v, purchase, position ->
-                showMenu(v, R.menu.menu_purchase, purchase, position)
+                lifecycleScope.launch {
+                    showMenu(v, R.menu.menu_purchase, purchase, position)
+                }
             }
 
             adapter.setOnItemClickListener { purchase, position ->
-                val bundle = Bundle()
-                bundle.putInt("id", purchase.id)
-                findNavController().navigate(R.id.action_allPurchasesFragment_to_addRollFragment, bundle)
+                lifecycleScope.launch {
+                    val bundle = Bundle()
+                    bundle.putInt("id", purchase.id)
+                    findNavController().navigate(R.id.action_allPurchasesFragment_to_addRollFragment, bundle)
+                }
 
             }
-            adapter.models = dao.getAllLists().toMutableList()
+            lifecycleScope.launchWhenResumed {
+
+                adapter.models = dao.getAllLists().toMutableList()
+            }
 
             fabAdd.setOnClickListener {
                 var k = 0
@@ -77,6 +86,7 @@ class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
         popup.menuInflater.inflate(menuRes, popup.menu)
 
         popup.setOnMenuItemClickListener { menuItem: MenuItem ->
+
             when (menuItem.itemId) {
                 R.id.item1 -> {
                     val bundle = Bundle()
@@ -86,21 +96,25 @@ class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
                     dialog.show(requireActivity().supportFragmentManager, dialog.tag)
 
                     dialog.setOnEditSuccessListener {
+                    lifecycleScope.launch {
                         adapter.models = dao.getAllLists().toMutableList()
 
                         Snackbar.make(requireView(), "Ozgerdi", Snackbar.LENGTH_SHORT).show()
                     }
+                    }
                 }
                 R.id.item2 -> {
-                    dao.deletePurchase(purchase)
-                    adapter.removeAtPosition(position)
-
-                    rollDao.getRoll(purchase.id).forEach {
-                        rollDao.deleteRoll(it)
+                    lifecycleScope.launchWhenResumed {
+                        dao.deletePurchase(purchase)
+                        adapter.removeAtPosition(position)
+                        rollDao.getRoll(purchase.id).forEach {
+                            rollDao.deleteRoll(it)
+                        }
+                        Snackbar.make(requireView(), "oshdi", Snackbar.LENGTH_SHORT).show()
                     }
-                    Snackbar.make(requireView(), "oshdi", Snackbar.LENGTH_SHORT).show()
                 }
-            }
+                    }
+
             true
         }
 

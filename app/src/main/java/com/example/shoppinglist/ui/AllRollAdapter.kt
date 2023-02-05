@@ -1,6 +1,6 @@
 package com.example.shoppinglist.ui
 
-import android.opengl.Visibility
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
@@ -12,17 +12,17 @@ import com.example.shoppinglist.data.*
 import com.example.shoppinglist.databinding.ItemAllBinding
 import com.example.shoppinglist.ui.AllRollAdapter.InnerViewHolder
 
-class AllRollAdapter(private val dao: PurchaseDao): ListAdapter<Roll, InnerViewHolder>(DiffUtilCallBack()) {
+class AllRollAdapter: ListAdapter<Roll, InnerViewHolder>(DiffUtilCallBack()) {
 
     inner class InnerViewHolder(private val binding: ItemAllBinding): ViewHolder(binding.root) {
-        fun bind(roll: Roll) {
+        @SuppressLint("SuspiciousIndentation")
+        fun bind() {
+            val d = getItem(adapterPosition)
             binding.apply {
-                tvNameAll.text = roll.name
-                tvPurchase.text =  dao.getPurchase(roll.topic_id).name
+                tvNameAll.text = d.name
+                tvPurchase.text = d.purchaseName
             }
-
-            updateStrokeOut(roll, binding.tvNameAll)
-
+            updateStrokeOut(d, binding.tvNameAll)
         }
     }
 
@@ -33,7 +33,7 @@ class AllRollAdapter(private val dao: PurchaseDao): ListAdapter<Roll, InnerViewH
     }
 
     override fun onBindViewHolder(holder: InnerViewHolder, position: Int) {
-        holder.bind(currentList[position])
+        holder.bind()
     }
 
     fun updateStrokeOut(roll: Roll, tv: TextView) {

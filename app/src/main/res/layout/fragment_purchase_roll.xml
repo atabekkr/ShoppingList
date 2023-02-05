@@ -22,13 +22,17 @@
 
     <ImageView
         android:id="@+id/btn_back"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:padding="8dp"
         android:src="@drawable/ic_back"
         app:layout_constraintTop_toTopOf="@id/toolbar"
         app:layout_constraintBottom_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
-        android:padding="8dp" />
+        app:layout_constraintEnd_toStartOf="@id/tv_name"
+        android:background="?attr/selectableItemBackground"
+        android:layout_margin="8dp"
+        />
 
     <TextView
         android:id="@+id/tv_name"
@@ -40,7 +44,8 @@
         app:layout_constraintTop_toTopOf="@id/toolbar"
         app:layout_constraintBottom_toBottomOf="@id/toolbar"
         app:layout_constraintEnd_toEndOf="parent"
-        android:textSize="24sp" />
+        android:textSize="28sp"
+        />
 
 
     <androidx.recyclerview.widget.RecyclerView

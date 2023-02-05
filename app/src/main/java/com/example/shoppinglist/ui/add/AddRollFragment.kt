@@ -1,23 +1,31 @@
 package com.example.shoppinglist.ui.add
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.annotation.MenuRes
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.shoppinglist.ui.NewRollAdapter
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.PurchaseDao
 import com.example.shoppinglist.data.PurchaseDatabase
 import com.example.shoppinglist.data.Roll
 import com.example.shoppinglist.data.RollDao
 import com.example.shoppinglist.databinding.FragmentPurchaseRollBinding
+import com.example.shoppinglist.ui.NewRollAdapter
 import com.google.android.material.snackbar.Snackbar
 
+
+@Suppress("UNUSED_EXPRESSION")
 class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
     private lateinit var binding: FragmentPurchaseRollBinding
     private val adapter = NewRollAdapter()
@@ -27,6 +35,7 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
     private var listOfRolls = mutableListOf<Roll>()
     private val navArgs: AddRollFragmentArgs by navArgs()
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("SuspiciousIndentation")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -36,49 +45,70 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
         dao = db.getRollDao()
         daoPurchase = db.getPurchaseDao()
 
-        val id = navArgs.id
+        binding.recyclerView.adapter = adapter
 
+        val id = navArgs.id
+        lifecycleScope.launchWhenResumed {
         listOfRolls.addAll(dao.getRoll(id))
 
-        listOfRolls.sortBy {
-            it.done
+            listOfRolls.sortBy {
+                it.done
+            }
+            adapter.submitList(listOfRolls)
         }
-        adapter.submitList(listOfRolls)
+
 
         binding.apply {
-            recyclerView.adapter = adapter
 
-            tvName.text = daoPurchase.getPurchase(id).name
+            lifecycleScope.launchWhenResumed {
+                tvName.text = daoPurchase.getPurchase(id).name
+            }
 
             tilField.setEndIconOnClickListener {
-                if (etName.text.toString().isNotEmpty()) {
-                    val roll = Roll(
-                        name = etName.text.toString(), topic_id = id, done = false
-                    )
-                    dao.addRoll(roll)
-                    etName.text?.clear()
-                    listOfRolls = dao.getRoll(id)
-                    listOfRolls.sortBy { it.done }
-                    adapter.submitList(listOfRolls)
+                lifecycleScope.launchWhenResumed {
+                    if (etName.text.toString().isNotEmpty()) {
+                        val roll = Roll(
+                            name = etName.text.toString(),
+                            topic_id = id,
+                            done = false,
+                            purchaseName = daoPurchase.getPurchase(id).name
+                        )
+                        dao.addRoll(roll)
+                        etName.text?.clear()
+                        /*val imm: InputMethodManager?
+                            getSystemService<Any>(requireContext()) as InputMethodManager?
+                        imm?.hideSoftInputFromWindow(
+                            tilField.windowToken,
+                            InputMethodManager.HIDE_NOT_ALWAYS
+                        )*/
+                        etName.clearFocus()
+                        listOfRolls = dao.getRoll(id)
+                        listOfRolls.sortBy { it.done }
+                        adapter.submitList(listOfRolls)
 
-                } else {
-                    Toast.makeText(requireContext(), "Toltir", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Toltir", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
 
             adapter.setOnMenuClickListener { v, roll ->
-                show(v, R.menu.menu_purchase, roll)
+                lifecycleScope.launchWhenResumed {
+                    show(v, R.menu.menu_purchase, roll)
+                }
             }
 
             adapter.setOnDoneClick { roll ->
-                dao.updateRoll(roll)
-                
-                listOfRolls = dao.getRoll(id)
+                lifecycleScope.launchWhenResumed {
+                    dao.updateRoll(roll)
 
-                listOfRolls.sortBy { it.id }
-                listOfRolls.sortBy { it.done }
+                    listOfRolls = dao.getRoll(id)
 
-                adapter.submitList(listOfRolls)
+                    listOfRolls.sortBy { it.id }
+                    listOfRolls.sortBy { it.done }
+
+                    adapter.submitList(listOfRolls)
+                }
             }
 
             btnBack.setOnClickListener {
@@ -92,41 +122,46 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
         popup.menuInflater.inflate(menuRes, popup.menu)
 
         popup.setOnMenuItemClickListener { it ->
+
             when (it.itemId) {
                 R.id.item1 -> {
-                    val dialog = EditRollDialog(roll.id, roll.topic_id, roll.name, roll.done)
+                    val dialog = EditRollDialog(roll.id, roll.topic_id, roll.name, roll.done, roll.purchaseName)
                     dialog.show(requireActivity().supportFragmentManager, dialog.tag)
 
                     dialog.setOnEditRollListener {
+                        lifecycleScope.launchWhenResumed {
 
-                        listOfRolls = dao.getRoll(it.topic_id)
+                            listOfRolls = dao.getRoll(it.topic_id)
 
-                        listOfRolls.sortBy {  roll ->
-                            roll.id
-                        }
+                            listOfRolls.sortBy {  roll ->
+                                roll.id
+                            }
 
-                        listOfRolls.sortBy {  roll ->
-                            roll.done
-                        }
+                            listOfRolls.sortBy {  roll ->
+                                roll.done
+                            }
 
-                        adapter.submitList(listOfRolls)
+                            adapter.submitList(listOfRolls)
 
-                        if (roll.name != it.name) {
-                            Snackbar.make(v, "Ozgerdi", Snackbar.LENGTH_SHORT).show()
+                            if (roll.name != it.name) {
+                                Snackbar.make(v, "Ozgerdi", Snackbar.LENGTH_SHORT).show()
+                            }
                         }
                     }
                 }
                 R.id.item2 -> {
-                    dao.deleteRoll(roll)
-                    listOfRolls = dao.getRoll(roll.topic_id)
+                    lifecycleScope.launchWhenResumed {
+                        dao.deleteRoll(roll)
+                        listOfRolls = dao.getRoll(roll.topic_id)
 
-                    listOfRolls.sortBy {  roll ->
-                        roll.id }
+                        listOfRolls.sortBy {  roll ->
+                            roll.id }
 
-                    listOfRolls.sortBy {  roll ->
-                        roll.done }
+                        listOfRolls.sortBy {  roll ->
+                            roll.done }
 
-                    adapter.submitList(listOfRolls)
+                        adapter.submitList(listOfRolls)
+                    }
                 }
             }
             true
@@ -134,6 +169,7 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
         }
 
         popup.show()
-
     }
+
 }
+

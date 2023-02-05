@@ -9,17 +9,17 @@ import androidx.room.Update
 @Dao
 interface RollDao {
     @Query("Select * From rolls")
-    fun getAllRoll(): List<Roll>
+    suspend fun getAllRoll(): List<Roll>
 
     @Insert
-    fun addRoll(roll: Roll)
+    suspend fun addRoll(roll: Roll)
 
     @Delete
-    fun deleteRoll(roll: Roll)
+    suspend fun deleteRoll(roll: Roll)
 
     @Query("Select * From rolls Where topic_id=:topicId")
-    fun getRoll(topicId: Int): MutableList<Roll>
+    suspend fun getRoll(topicId: Int): MutableList<Roll>
 
     @Update
-    fun updateRoll(roll: Roll)
+    suspend fun updateRoll(roll: Roll)
 }

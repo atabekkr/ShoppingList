@@ -3,6 +3,7 @@ package com.example.shoppinglist.ui.all
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.example.shoppinglist.R
@@ -11,6 +12,7 @@ import com.example.shoppinglist.data.PurchaseDatabase
 import com.example.shoppinglist.data.RollDao
 import com.example.shoppinglist.databinding.FragmentItemAllBinding
 import com.example.shoppinglist.ui.AllRollAdapter
+import kotlinx.coroutines.launch
 
 class AllItemFragment: Fragment(R.layout.fragment_item_all) {
     private lateinit var binding: FragmentItemAllBinding
@@ -26,14 +28,21 @@ class AllItemFragment: Fragment(R.layout.fragment_item_all) {
         db = PurchaseDatabase.getInstance(requireContext())
         dao = db.getPurchaseDao()
 
-        adapter = AllRollAdapter(dao)
+        lifecycleScope.launchWhenResumed {
+
+            adapter = AllRollAdapter()
+
+        }
 
         daoRoll = db.getRollDao()
 
-        adapter.submitList(daoRoll.getAllRoll())
+        lifecycleScope.launchWhenResumed {
+
+            adapter.submitList(daoRoll.getAllRoll())
+            binding.recyclerViewAll.adapter = adapter
+        }
 
         binding.apply {
-            recyclerViewAll.adapter = adapter
 
             recyclerViewAll.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
 

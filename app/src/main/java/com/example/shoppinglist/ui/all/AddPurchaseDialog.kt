@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Purchase
 import com.example.shoppinglist.data.PurchaseDatabase
@@ -43,9 +44,11 @@ class AddPurchaseDialog(private val lastId: Int): DialogFragment(R.layout.dialog
                         name = name,
                         date = date
                     )
-                    dao.addPurchase(purchase)
-                    onAddSuccess.invoke(lastId + 1) // purchase.id = 0
-                    dismiss()
+                    lifecycleScope.launchWhenResumed {
+                        dao.addPurchase(purchase)
+                        onAddSuccess.invoke(lastId + 1) // purchase.id = 0
+                        dismiss()
+                    }
                 } else {
                     Toast.makeText(requireContext(), "Toltir", Toast.LENGTH_SHORT).show()
                 }

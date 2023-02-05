@@ -5,11 +5,13 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Purchase
 import com.example.shoppinglist.data.PurchaseDao
 import com.example.shoppinglist.data.PurchaseDatabase
 import com.example.shoppinglist.databinding.DialogPurchaseEditBinding
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -42,9 +44,11 @@ class EditPurchaseDialog(id: Int, var name: String, private var date: String): D
                         name = name,
                         date = date
                     )
-                    dao.updatePurchase(purchase)
-                    onEditSuccess.invoke()
-                    dismiss()
+                    lifecycleScope.launchWhenResumed {
+                        dao.updatePurchase(purchase)
+                        onEditSuccess.invoke()
+                        dismiss()
+                    }
                 } else {
                     Toast.makeText(requireContext(), "Toltir", Toast.LENGTH_SHORT).show()
                 }
