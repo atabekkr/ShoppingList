@@ -8,10 +8,13 @@ import androidx.annotation.MenuRes
 import androidx.compose.ui.graphics.colorspace.Illuminant.A
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
+import com.example.shoppinglist.MainViewModel
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Purchase
 import com.example.shoppinglist.data.PurchaseDao
@@ -22,22 +25,25 @@ import com.example.shoppinglist.ui.PurchaseAdapter
 import com.example.shoppinglist.ui.add.AddRollFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
     private lateinit var binding: FragmentPurchasesAllBinding
     private val adapter = PurchaseAdapter()
-    private lateinit var db: PurchaseDatabase
-    private lateinit var dao: PurchaseDao
-    private lateinit var rollDao: RollDao
+    private lateinit var viewModel: MainViewModel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding = FragmentPurchasesAllBinding.bind(view)
         super.onViewCreated(view, savedInstanceState)
 
-        db = PurchaseDatabase.getInstance(requireContext())
-        dao = db.getPurchaseDao()
-        rollDao = db.getRollDao()
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
+        ).get(MainViewModel::class.java)
+
+        initObservers()
 
         binding.apply {
             recyclerView.adapter = adapter
@@ -56,9 +62,9 @@ class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
                 }
 
             }
-            lifecycleScope.launchWhenResumed {
 
-                adapter.models = dao.getAllLists().toMutableList()
+            lifecycleScope.launchWhenResumed {
+                viewModel.getAllElements()
             }
 
             fabAdd.setOnClickListener {
@@ -72,7 +78,6 @@ class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
                 dialog.show(requireActivity().supportFragmentManager, dialog.tag)
 
                 dialog.setOnAddSuccessListener { id ->
-
                     findNavController().navigate(
                         AllPurchasesFragmentDirections.actionAllPurchasesFragmentToAddRollFragment(id)
                     )
@@ -96,28 +101,32 @@ class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
                     dialog.show(requireActivity().supportFragmentManager, dialog.tag)
 
                     dialog.setOnEditSuccessListener {
-                    lifecycleScope.launch {
-                        adapter.models = dao.getAllLists().toMutableList()
+                        lifecycleScope.launch {
+                        viewModel.getAllElements()
 
                         Snackbar.make(requireView(), "Ozgerdi", Snackbar.LENGTH_SHORT).show()
-                    }
+                        }
                     }
                 }
                 R.id.item2 -> {
                     lifecycleScope.launchWhenResumed {
-                        dao.deletePurchase(purchase)
+                        viewModel.deletePurchase(purchase)
                         adapter.removeAtPosition(position)
-                        rollDao.getRoll(purchase.id).forEach {
-                            rollDao.deleteRoll(it)
-                        }
+                        viewModel.deleteAllRoll(purchase.id)
                         Snackbar.make(requireView(), "oshdi", Snackbar.LENGTH_SHORT).show()
                     }
                 }
-                    }
+            }
 
             true
         }
 
         popup.show()
+    }
+
+    private fun initObservers() {
+        viewModel.getAllPurchaseFlow.onEach {
+            adapter.models = it.toMutableList()
+        }.launchIn(lifecycleScope)
     }
 }

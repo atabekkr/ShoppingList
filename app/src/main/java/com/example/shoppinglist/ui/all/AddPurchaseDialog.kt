@@ -1,17 +1,17 @@
 package com.example.shoppinglist.ui.all
 
 import android.app.DatePickerDialog
-import android.app.Dialog
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.shoppinglist.MainViewModel
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Purchase
 import com.example.shoppinglist.data.PurchaseDatabase
 import com.example.shoppinglist.databinding.DialogPurchaseAddBinding
-import com.google.android.material.snackbar.Snackbar
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -19,10 +19,16 @@ import java.util.Locale
 class AddPurchaseDialog(private val lastId: Int): DialogFragment(R.layout.dialog_purchase_add) {
     private lateinit var binding: DialogPurchaseAddBinding
     private lateinit var date: String
+    private lateinit var viewModel: MainViewModel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = DialogPurchaseAddBinding.bind(view)
+
+        viewModel = ViewModelProvider(
+            requireActivity(),
+        ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
+        ).get(MainViewModel::class.java)
 
         val c = Calendar.getInstance()
 
@@ -45,7 +51,7 @@ class AddPurchaseDialog(private val lastId: Int): DialogFragment(R.layout.dialog
                         date = date
                     )
                     lifecycleScope.launchWhenResumed {
-                        dao.addPurchase(purchase)
+                        viewModel.addPurchase(purchase)
                         onAddSuccess.invoke(lastId + 1) // purchase.id = 0
                         dismiss()
                     }

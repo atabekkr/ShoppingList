@@ -1,39 +1,35 @@
 package com.example.shoppinglist.ui.add
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.annotation.MenuRes
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.example.shoppinglist.MainViewModel
 import com.example.shoppinglist.R
-import com.example.shoppinglist.data.PurchaseDao
-import com.example.shoppinglist.data.PurchaseDatabase
 import com.example.shoppinglist.data.Roll
-import com.example.shoppinglist.data.RollDao
 import com.example.shoppinglist.databinding.FragmentPurchaseRollBinding
 import com.example.shoppinglist.ui.NewRollAdapter
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 
 @Suppress("UNUSED_EXPRESSION")
 class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
     private lateinit var binding: FragmentPurchaseRollBinding
     private val adapter = NewRollAdapter()
-    private lateinit var db: PurchaseDatabase
-    private lateinit var dao: RollDao
-    private lateinit var daoPurchase: PurchaseDao
-    private var listOfRolls = mutableListOf<Roll>()
     private val navArgs: AddRollFragmentArgs by navArgs()
+    private lateinit var viewModel: MainViewModel
+    private lateinit var purchaseName: String
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("SuspiciousIndentation")
@@ -41,28 +37,27 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentPurchaseRollBinding.bind(view)
 
-        db = PurchaseDatabase.getInstance(requireContext())
-        dao = db.getRollDao()
-        daoPurchase = db.getPurchaseDao()
+        viewModel = ViewModelProvider(
+            requireActivity(),
+            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application),
+        ).get(MainViewModel::class.java)
+
+        initObservers()
 
         binding.recyclerView.adapter = adapter
 
         val id = navArgs.id
         lifecycleScope.launchWhenResumed {
-        listOfRolls.addAll(dao.getRoll(id))
-
-            listOfRolls.sortBy {
-                it.done
-            }
-            adapter.submitList(listOfRolls)
+            viewModel.getAllRollsId(id)
         }
-
 
         binding.apply {
 
             lifecycleScope.launchWhenResumed {
-                tvName.text = daoPurchase.getPurchase(id).name
+                viewModel.nameOfToolbar(id)
+                viewModel.nameOfPurchase(id)
             }
+
 
             tilField.setEndIconOnClickListener {
                 lifecycleScope.launchWhenResumed {
@@ -71,20 +66,12 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
                             name = etName.text.toString(),
                             topic_id = id,
                             done = false,
-                            purchaseName = daoPurchase.getPurchase(id).name
+                            purchaseName = purchaseName
                         )
-                        dao.addRoll(roll)
+                        viewModel.addRoll(roll)
                         etName.text?.clear()
-                        /*val imm: InputMethodManager?
-                            getSystemService<Any>(requireContext()) as InputMethodManager?
-                        imm?.hideSoftInputFromWindow(
-                            tilField.windowToken,
-                            InputMethodManager.HIDE_NOT_ALWAYS
-                        )*/
                         etName.clearFocus()
-                        listOfRolls = dao.getRoll(id)
-                        listOfRolls.sortBy { it.done }
-                        adapter.submitList(listOfRolls)
+                        viewModel.getAllRollsId(id)
 
                     } else {
                         Toast.makeText(requireContext(), "Toltir", Toast.LENGTH_SHORT).show()
@@ -100,14 +87,9 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
 
             adapter.setOnDoneClick { roll ->
                 lifecycleScope.launchWhenResumed {
-                    dao.updateRoll(roll)
+                    viewModel.updateRoll(roll)
 
-                    listOfRolls = dao.getRoll(id)
-
-                    listOfRolls.sortBy { it.id }
-                    listOfRolls.sortBy { it.done }
-
-                    adapter.submitList(listOfRolls)
+                    viewModel.getAllRollsId(id)
                 }
             }
 
@@ -130,18 +112,7 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
 
                     dialog.setOnEditRollListener {
                         lifecycleScope.launchWhenResumed {
-
-                            listOfRolls = dao.getRoll(it.topic_id)
-
-                            listOfRolls.sortBy {  roll ->
-                                roll.id
-                            }
-
-                            listOfRolls.sortBy {  roll ->
-                                roll.done
-                            }
-
-                            adapter.submitList(listOfRolls)
+                            viewModel.getAllRollsId(it.topic_id)
 
                             if (roll.name != it.name) {
                                 Snackbar.make(v, "Ozgerdi", Snackbar.LENGTH_SHORT).show()
@@ -151,16 +122,8 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
                 }
                 R.id.item2 -> {
                     lifecycleScope.launchWhenResumed {
-                        dao.deleteRoll(roll)
-                        listOfRolls = dao.getRoll(roll.topic_id)
-
-                        listOfRolls.sortBy {  roll ->
-                            roll.id }
-
-                        listOfRolls.sortBy {  roll ->
-                            roll.done }
-
-                        adapter.submitList(listOfRolls)
+                        viewModel.deleteRoll(roll)
+                        viewModel.getAllRollsId(roll.topic_id)
                     }
                 }
             }
@@ -169,6 +132,20 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
         }
 
         popup.show()
+    }
+
+    private fun initObservers() {
+        viewModel.getAllRollIdFlow.onEach {
+            adapter.submitList(it)
+        }.launchIn(lifecycleScope)
+
+        viewModel.nameOfToolbarFlow.onEach {
+            binding.tvName.text = it
+        }.launchIn(lifecycleScope)
+
+        viewModel.nameOfPurchaseFlow.onEach {
+            purchaseName = it
+        }.launchIn(lifecycleScope)
     }
 
 }
