@@ -7,21 +7,18 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
-import com.example.shoppinglist.MainViewModel
+import com.example.shoppinglist.ui.RollViewModel
 import com.example.shoppinglist.R
-import com.example.shoppinglist.data.PurchaseDao
-import com.example.shoppinglist.data.PurchaseDatabase
-import com.example.shoppinglist.data.RollDao
 import com.example.shoppinglist.databinding.FragmentItemAllBinding
 import com.example.shoppinglist.ui.AllRollAdapter
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 
 class AllItemFragment: Fragment(R.layout.fragment_item_all) {
     private lateinit var binding: FragmentItemAllBinding
     private lateinit var adapter: AllRollAdapter
-    private lateinit var viewModel: MainViewModel
+    private lateinit var viewModel: RollViewModel
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -31,7 +28,7 @@ class AllItemFragment: Fragment(R.layout.fragment_item_all) {
         viewModel = ViewModelProvider(
             requireActivity(),
             ViewModelProvider.AndroidViewModelFactory(requireActivity().application)
-        ).get(MainViewModel::class.java)
+        ).get(RollViewModel::class.java)
 
         initObservers()
 
@@ -56,6 +53,10 @@ class AllItemFragment: Fragment(R.layout.fragment_item_all) {
     private fun initObservers() {
         viewModel.getAllRollFlow.onEach {
             adapter.submitList(it)
+        }.launchIn(lifecycleScope)
+
+        viewModel.messageFlow.onEach {
+            Snackbar.make(requireView(), it, Snackbar.LENGTH_SHORT).show()
         }.launchIn(lifecycleScope)
     }
 }

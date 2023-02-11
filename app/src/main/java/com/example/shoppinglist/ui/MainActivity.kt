@@ -2,6 +2,8 @@ package com.example.shoppinglist.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log.i
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -28,5 +30,17 @@ class MainActivity : AppCompatActivity() {
         navController = navHostFragment.findNavController()
 
         binding.bnvMain.setupWithNavController(navController)
+
+        /*binding.bnvMain.setOnNavigationItemSelectedListener {
+            when(it.itemId){
+                R.id.allPurchasesFragment ->{
+                    binding.bnvMain.selectedItemId = R.id.allPurchasesFragment
+                }
+                R.id.allItemFragment -> {
+                    binding.bnvMain.selectedItemId = R.id.allItemFragment
+                }
+            }
+            true
+        }*/
     }
 }

@@ -6,7 +6,7 @@ import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.example.shoppinglist.MainViewModel
+import com.example.shoppinglist.ui.RollViewModel
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Roll
 import com.example.shoppinglist.databinding.DialogRollEditBinding
@@ -14,7 +14,7 @@ import com.example.shoppinglist.databinding.DialogRollEditBinding
 class EditRollDialog(id: Int, private val topicId: Int, private val name: String, private val done: Boolean, private val purchaseName: String): DialogFragment(R.layout.dialog_roll_edit) {
     private lateinit var binding: DialogRollEditBinding
     private val select = id
-    private lateinit var viewModel: MainViewModel
+    private lateinit var viewModel: RollViewModel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -22,7 +22,7 @@ class EditRollDialog(id: Int, private val topicId: Int, private val name: String
 
         viewModel = ViewModelProvider(requireActivity(),
             ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
-        ).get(MainViewModel::class.java)
+        ).get(RollViewModel::class.java)
 
         binding.apply {
             etName.setText(name)

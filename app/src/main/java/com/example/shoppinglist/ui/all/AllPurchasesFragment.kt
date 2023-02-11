@@ -5,25 +5,15 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
 import androidx.annotation.MenuRes
-import androidx.compose.ui.graphics.colorspace.Illuminant.A
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
-import com.example.shoppinglist.MainViewModel
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Purchase
-import com.example.shoppinglist.data.PurchaseDao
-import com.example.shoppinglist.data.PurchaseDatabase
-import com.example.shoppinglist.data.RollDao
 import com.example.shoppinglist.databinding.FragmentPurchasesAllBinding
 import com.example.shoppinglist.ui.PurchaseAdapter
-import com.example.shoppinglist.ui.add.AddRollFragment
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.example.shoppinglist.ui.PurchaseViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -32,7 +22,7 @@ import kotlinx.coroutines.launch
 class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
     private lateinit var binding: FragmentPurchasesAllBinding
     private val adapter = PurchaseAdapter()
-    private lateinit var viewModel: MainViewModel
+    private lateinit var viewModel: PurchaseViewModel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding = FragmentPurchasesAllBinding.bind(view)
@@ -41,7 +31,7 @@ class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
         viewModel = ViewModelProvider(
             requireActivity(),
             ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
-        ).get(MainViewModel::class.java)
+        ).get(PurchaseViewModel::class.java)
 
         initObservers()
 
@@ -112,7 +102,6 @@ class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
                     lifecycleScope.launchWhenResumed {
                         viewModel.deletePurchase(purchase)
                         adapter.removeAtPosition(position)
-                        viewModel.deleteAllRoll(purchase.id)
                         Snackbar.make(requireView(), "oshdi", Snackbar.LENGTH_SHORT).show()
                     }
                 }

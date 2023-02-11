@@ -7,16 +7,16 @@ import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.example.shoppinglist.MainViewModel
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Purchase
 import com.example.shoppinglist.databinding.DialogPurchaseEditBinding
+import com.example.shoppinglist.ui.PurchaseViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
 class EditPurchaseDialog(id: Int, var name: String, private var date: String): DialogFragment(R.layout.dialog_purchase_edit) {
     private lateinit var binding: DialogPurchaseEditBinding
-    private lateinit var viewModel: MainViewModel
+    private lateinit var viewModel: PurchaseViewModel
 
     private val select = id
 
@@ -27,7 +27,7 @@ class EditPurchaseDialog(id: Int, var name: String, private var date: String): D
         viewModel = ViewModelProvider(
             requireActivity(),
             ViewModelProvider.AndroidViewModelFactory(requireActivity().application)
-        ).get(MainViewModel::class.java)
+        ).get(PurchaseViewModel::class.java)
         val c = Calendar.getInstance()
 
         binding.apply {

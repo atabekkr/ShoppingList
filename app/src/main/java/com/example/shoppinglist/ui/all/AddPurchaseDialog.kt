@@ -7,11 +7,11 @@ import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.example.shoppinglist.MainViewModel
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Purchase
 import com.example.shoppinglist.data.PurchaseDatabase
 import com.example.shoppinglist.databinding.DialogPurchaseAddBinding
+import com.example.shoppinglist.ui.PurchaseViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -19,7 +19,7 @@ import java.util.Locale
 class AddPurchaseDialog(private val lastId: Int): DialogFragment(R.layout.dialog_purchase_add) {
     private lateinit var binding: DialogPurchaseAddBinding
     private lateinit var date: String
-    private lateinit var viewModel: MainViewModel
+    private lateinit var viewModel: PurchaseViewModel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -28,7 +28,7 @@ class AddPurchaseDialog(private val lastId: Int): DialogFragment(R.layout.dialog
         viewModel = ViewModelProvider(
             requireActivity(),
         ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
-        ).get(MainViewModel::class.java)
+        ).get(PurchaseViewModel::class.java)
 
         val c = Calendar.getInstance()
 

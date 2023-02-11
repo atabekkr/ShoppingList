@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.shoppinglist.MainViewModel
+import com.example.shoppinglist.ui.RollViewModel
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Roll
 import com.example.shoppinglist.databinding.FragmentPurchaseRollBinding
@@ -28,7 +28,7 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
     private lateinit var binding: FragmentPurchaseRollBinding
     private val adapter = NewRollAdapter()
     private val navArgs: AddRollFragmentArgs by navArgs()
-    private lateinit var viewModel: MainViewModel
+    private lateinit var viewModel: RollViewModel
     private lateinit var purchaseName: String
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -40,7 +40,7 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
         viewModel = ViewModelProvider(
             requireActivity(),
             ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application),
-        ).get(MainViewModel::class.java)
+        ).get(RollViewModel::class.java)
 
         initObservers()
 
