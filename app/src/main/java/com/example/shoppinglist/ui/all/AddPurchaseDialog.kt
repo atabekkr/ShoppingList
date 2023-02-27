@@ -2,6 +2,7 @@ package com.example.shoppinglist.ui.all
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
@@ -11,7 +12,8 @@ import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Purchase
 import com.example.shoppinglist.data.PurchaseDatabase
 import com.example.shoppinglist.databinding.DialogPurchaseAddBinding
-import com.example.shoppinglist.ui.PurchaseViewModel
+import com.example.shoppinglist.presentation.PurchaseViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -19,24 +21,17 @@ import java.util.Locale
 class AddPurchaseDialog(private val lastId: Int): DialogFragment(R.layout.dialog_purchase_add) {
     private lateinit var binding: DialogPurchaseAddBinding
     private lateinit var date: String
-    private lateinit var viewModel: PurchaseViewModel
+    private val viewModel by viewModel<PurchaseViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = DialogPurchaseAddBinding.bind(view)
-
-        viewModel = ViewModelProvider(
-            requireActivity(),
-        ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
-        ).get(PurchaseViewModel::class.java)
 
         val c = Calendar.getInstance()
 
         val myFormat = "dd-MM-yyyy"
         val sdf = SimpleDateFormat(myFormat, Locale.UK)
         date = sdf.format(c.time)
-
-        val dao = PurchaseDatabase.getInstance(requireContext()).getPurchaseDao()
 
         binding.apply {
             tvDate.text = date
@@ -52,7 +47,7 @@ class AddPurchaseDialog(private val lastId: Int): DialogFragment(R.layout.dialog
                     )
                     lifecycleScope.launchWhenResumed {
                         viewModel.addPurchase(purchase)
-                        onAddSuccess.invoke(lastId + 1) // purchase.id = 0
+                        onAddSuccess.invoke(1 + lastId) // purchase.id = 0
                         dismiss()
                     }
                 } else {

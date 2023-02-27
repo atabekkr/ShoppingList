@@ -7,28 +7,25 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
-import com.example.shoppinglist.ui.RollViewModel
+import com.example.shoppinglist.presentation.RollViewModel
 import com.example.shoppinglist.R
 import com.example.shoppinglist.databinding.FragmentItemAllBinding
+import com.example.shoppinglist.presentation.AllItemViewModel
 import com.example.shoppinglist.ui.AllRollAdapter
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class AllItemFragment: Fragment(R.layout.fragment_item_all) {
+class AllItemFragment : Fragment(R.layout.fragment_item_all) {
     private lateinit var binding: FragmentItemAllBinding
     private lateinit var adapter: AllRollAdapter
-    private lateinit var viewModel: RollViewModel
+    private val viewModel by viewModel<AllItemViewModel>()
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentItemAllBinding.bind(view)
-
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            ViewModelProvider.AndroidViewModelFactory(requireActivity().application)
-        ).get(RollViewModel::class.java)
 
         initObservers()
 
@@ -42,7 +39,11 @@ class AllItemFragment: Fragment(R.layout.fragment_item_all) {
 
         binding.apply {
 
-            recyclerViewAll.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+            recyclerViewAll.addItemDecoration(
+                DividerItemDecoration(
+                    requireContext(), DividerItemDecoration.VERTICAL
+                )
+            )
 
             btnBack.setOnClickListener {
                 findNavController().popBackStack(R.id.allPurchasesFragment, false)
@@ -55,8 +56,5 @@ class AllItemFragment: Fragment(R.layout.fragment_item_all) {
             adapter.submitList(it)
         }.launchIn(lifecycleScope)
 
-        viewModel.messageFlow.onEach {
-            Snackbar.make(requireView(), it, Snackbar.LENGTH_SHORT).show()
-        }.launchIn(lifecycleScope)
     }
 }

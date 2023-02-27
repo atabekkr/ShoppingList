@@ -1,4 +1,4 @@
-package com.example.shoppinglist.ui
+package com.example.shoppinglist.ui.adapters
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Purchase
 import com.example.shoppinglist.databinding.ItemPurchaseBinding
-import java.util.Calendar
 
 class PurchaseAdapter: Adapter<PurchaseAdapter.PurchaseViewHolder>() {
 

@@ -3,6 +3,7 @@ package com.example.shoppinglist.ui.add
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.PopupMenu
 import android.widget.Toast
@@ -13,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.shoppinglist.ui.RollViewModel
+import com.example.shoppinglist.presentation.RollViewModel
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Roll
 import com.example.shoppinglist.databinding.FragmentPurchaseRollBinding
@@ -21,6 +22,7 @@ import com.example.shoppinglist.ui.NewRollAdapter
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 @Suppress("UNUSED_EXPRESSION")
@@ -28,7 +30,7 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
     private lateinit var binding: FragmentPurchaseRollBinding
     private val adapter = NewRollAdapter()
     private val navArgs: AddRollFragmentArgs by navArgs()
-    private lateinit var viewModel: RollViewModel
+    private val viewModel by viewModel<RollViewModel>()
     private lateinit var purchaseName: String
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -36,11 +38,6 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentPurchaseRollBinding.bind(view)
-
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application),
-        ).get(RollViewModel::class.java)
 
         initObservers()
 
@@ -63,11 +60,12 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
                 lifecycleScope.launchWhenResumed {
                     if (etName.text.toString().isNotEmpty()) {
                         val roll = Roll(
-                            name = etName.text.toString(),
                             topic_id = id,
+                            name = etName.text.toString(),
                             done = false,
                             purchaseName = purchaseName
                         )
+                        Log.w("topicId", "$roll")
                         viewModel.addRoll(roll)
                         etName.text?.clear()
                         etName.clearFocus()
@@ -145,6 +143,7 @@ class AddRollFragment : Fragment(R.layout.fragment_purchase_roll) {
 
         viewModel.nameOfPurchaseFlow.onEach {
             purchaseName = it
+            Log.w("topicId", purchaseName)
         }.launchIn(lifecycleScope)
     }
 

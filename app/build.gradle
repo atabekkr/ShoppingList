@@ -3,11 +3,12 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id("androidx.navigation.safeargs.kotlin")
+    id 'com.google.gms.google-services'
 }
 
 android {
     namespace 'com.example.shoppinglist'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.example.shoppinglist"
@@ -41,6 +42,7 @@ dependencies {
     implementation 'androidx.compose.ui:ui-graphics:1.1.1'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
+    implementation 'com.google.firebase:firebase-firestore:24.0.2'
     def room_version = "2.4.3"
 
     implementation 'androidx.core:core-ktx:1.7.0'
@@ -69,4 +71,26 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
 
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+
+    //Koin
+    def koin_version = "3.3.3"
+    implementation "io.insert-koin:koin-android:$koin_version"
+    implementation "io.insert-koin:koin-core:$koin_version"
+    testImplementation "io.insert-koin:koin-test-junit4:$koin_version"
+
+
+    // Navigation Graph
+    implementation "io.insert-koin:koin-androidx-navigation:$koin_version"
+
+
+    implementation "io.insert-koin:koin-androidx-compose:3.4.2"
+
+//    // Koin AndroidX Scope features
+//    implementation "org.koin:koin-androidx-scope:3.2.1"
+//// Koin AndroidX ViewModel features
+//    implementation "org.koin:koin-androidx-viewmodel:3.2.1"
+////// Koin AndroidX Fragment features
+//    implementation "org.koin:koin-androidx-fragment:3.2.1"
+//// Koin AndroidX WorkManager
+//    implementation "org.koin:koin-androidx-workmanager:3.2.1"
 }

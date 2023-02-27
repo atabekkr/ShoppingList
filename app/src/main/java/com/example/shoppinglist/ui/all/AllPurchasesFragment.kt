@@ -1,39 +1,39 @@
 package com.example.shoppinglist.ui.all
 
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
 import androidx.annotation.MenuRes
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.shoppinglist.R
 import com.example.shoppinglist.data.Purchase
 import com.example.shoppinglist.databinding.FragmentPurchasesAllBinding
-import com.example.shoppinglist.ui.PurchaseAdapter
-import com.example.shoppinglist.ui.PurchaseViewModel
+import com.example.shoppinglist.ui.adapters.PurchaseAdapter
+import com.example.shoppinglist.presentation.PurchaseViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
     private lateinit var binding: FragmentPurchasesAllBinding
     private val adapter = PurchaseAdapter()
-    private lateinit var viewModel: PurchaseViewModel
+    private val viewModel by viewModel<PurchaseViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding = FragmentPurchasesAllBinding.bind(view)
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
-        ).get(PurchaseViewModel::class.java)
-
         initObservers()
+
 
         binding.apply {
             recyclerView.adapter = adapter
@@ -54,7 +54,7 @@ class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
             }
 
             lifecycleScope.launchWhenResumed {
-                viewModel.getAllElements()
+                viewModel.getAllPurchases()
             }
 
             fabAdd.setOnClickListener {
@@ -92,7 +92,7 @@ class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
 
                     dialog.setOnEditSuccessListener {
                         lifecycleScope.launch {
-                        viewModel.getAllElements()
+                        viewModel.getAllPurchases()
 
                         Snackbar.make(requireView(), "Ozgerdi", Snackbar.LENGTH_SHORT).show()
                         }
@@ -116,6 +116,14 @@ class AllPurchasesFragment : Fragment(R.layout.fragment_purchases_all){
     private fun initObservers() {
         viewModel.getAllPurchaseFlow.onEach {
             adapter.models = it.toMutableList()
+        }.launchIn(lifecycleScope)
+
+        viewModel.activeUsersFlow.onEach {
+            Log.d("TTTT","$it firebasedan kelgen list")
+        }.launchIn(lifecycleScope)
+
+        viewModel.messageFlow.onEach {
+            Log.d("TTTT","$it is message")
         }.launchIn(lifecycleScope)
     }
 }

@@ -8,4 +8,5 @@
     <string name="text_purchase">Список: %s</string>
     <string name="tv_main_purchase">Список</string>
     <string name="text_save">Save</string>
+    <string name="text_name">name</string>
 </resources>
